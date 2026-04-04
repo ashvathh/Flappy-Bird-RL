@@ -12,7 +12,6 @@ import os
 from flappy_env import FlappyEnv, SCREEN_W, SCREEN_H, GROUND_Y, COL_BG, COL_TEXT, COL_MUTED, COL_BIRD, COL_PIPE
 
 # ─── Button helper ───────────────────────────────────────────────
-tlv=1
 def ensure_pygame_ready():
     if not pygame.get_init():
         pygame.init()
