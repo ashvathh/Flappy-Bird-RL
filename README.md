@@ -35,9 +35,10 @@ Output:  2 neurons   (Q-value per action, no activation)
 ### Reward structure
 
 ```
-+10.0   clearing a pipe
-+0.02   being aligned with the gap center (dense shaping reward)
- -5.0   hitting a pipe, ceiling, or ground
++10.0                             clearing a pipe
++0.02 * (1.0 - dist / max_dist)   being aligned with the gap center (dense shaping reward)
++0.01 * (dist / max_dist)         small penalty for being far from gap
+-5.0                              hitting a pipe, ceiling, or ground
 ```
 
 The gap-centering reward is critical — without it the agent receives almost no signal for the first hundred episodes and learns nothing. It gives the agent a gradient to follow on every frame instead of waiting for the sparse pipe-clear signal.
@@ -159,11 +160,3 @@ The agent goes through distinct phases:
 **Why Huber loss over MSE?** Death transitions carry reward `-5.0` while survival frames carry `+0.02`. MSE squares the large death error, causing it to dominate every update. Huber loss clips large errors linearly, letting the network learn from all transitions proportionally.
 
 **Why gap-centering reward?** Without it, the only non-zero reward in the first hundred episodes is `-5.0` on death. The agent has no gradient during survival — it cannot tell if it is doing well until it dies. Gap-centering provides a small reward every frame for being near where it needs to be, dramatically accelerating early learning.
-
----
-
-## What's next
-
-- **Prioritized Experience Replay** — sample transitions proportional to TD error so rare pipe-clear and death transitions are trained on more frequently
-- **Connect 4 with DQN** — same architecture applied to a two-player board game
-- **Pixel-based input** — replace the state vector with raw screen pixels and add convolutional layers
