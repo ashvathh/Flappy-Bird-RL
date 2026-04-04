@@ -35,9 +35,10 @@ Output:  2 neurons   (Q-value per action, no activation)
 ### Reward structure
 
 ```
-+10.0   clearing a pipe
-+0.02   being aligned with the gap center (dense shaping reward)
- -5.0   hitting a pipe, ceiling, or ground
++10.0                             clearing a pipe
++0.02 * (1.0 - dist / max_dist)   being aligned with the gap center (dense shaping reward)
+0.01 * (dist / max_dist)          small penalty for being far from gap
+ -5.0                             hitting a pipe, ceiling, or ground
 ```
 
 The gap-centering reward is critical — without it the agent receives almost no signal for the first hundred episodes and learns nothing. It gives the agent a gradient to follow on every frame instead of waiting for the sparse pipe-clear signal.
