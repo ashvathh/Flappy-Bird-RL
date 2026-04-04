@@ -12,7 +12,7 @@ PIPE_GAP = 150
 PIPE_FREQ = 90 # frames between pipe spawns
 BIRD_X = 80
 BIRD_R = 16 # bird radius
-
+tks=1
 
 # colours
 COL_BG = (10,20,40)
