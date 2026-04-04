@@ -13,6 +13,12 @@ from flappy_env import FlappyEnv, SCREEN_W, SCREEN_H, GROUND_Y, COL_BG, COL_TEXT
 
 # ─── Button helper ───────────────────────────────────────────────
 
+def ensure_pygame_ready():
+    if not pygame.get_init():
+        pygame.init()
+    if not pygame.font.get_init():
+        pygame.font.init()
+
 class Button:
     def __init__(self, x, y, w, h, text, color, hover_color, text_color=(255, 255, 255)):
         self.rect = pygame.Rect(x, y, w, h)
@@ -42,6 +48,7 @@ class Button:
 # ─── Menu screen ─────────────────────────────────────────────────
 
 def show_menu(surf, clock):
+    ensure_pygame_ready()
     title_font = pygame.font.SysFont('Arial', 44, bold=True)
     sub_font = pygame.font.SysFont('Arial', 18)
     btn_font = pygame.font.SysFont('Arial', 24, bold=True)
@@ -139,6 +146,7 @@ def show_menu(surf, clock):
 # ─── Game over screen ────────────────────────────────────────────
 
 def show_game_over(surf, clock, score, mode):
+    ensure_pygame_ready()
     big_font = pygame.font.SysFont('Arial', 40, bold=True)
     font = pygame.font.SysFont('Arial', 22, bold=True)
     btn_font = pygame.font.SysFont('Arial', 20, bold=True)
@@ -228,16 +236,22 @@ def play_human(env):
 def play_ai(env, agent):
     state = env.reset()
     done = False
+    hint_font = pygame.font.SysFont('Arial', 16, bold=True)
 
     while not done:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                return "menu"
 
         action = agent.choose_action(state, greedy=True)
         state, reward, done = env.step(action)
         env.render(total_reward=env.score)
+        hint = hint_font.render("ESC = Menu", True, COL_MUTED)
+        env.surf.blit(hint, (SCREEN_W - hint.get_width() - 12, 12))
+        pygame.display.flip()
 
     return env.score
 
@@ -245,7 +259,7 @@ def play_ai(env, agent):
 # ─── Main loop ───────────────────────────────────────────────────
 
 def main():
-    pygame.init()
+    ensure_pygame_ready()
     surf = pygame.display.set_mode((SCREEN_W, SCREEN_H))
     clock = pygame.time.Clock()
     pygame.display.set_caption("Flappy Bird — RL Edition")
@@ -270,6 +284,7 @@ def main():
             env = FlappyEnv(render=True)
 
             if mode == "human":
+                ensure_pygame_ready()
                 font = pygame.font.SysFont('Arial', 22, bold=True)
                 env.reset()
                 waiting = True
@@ -288,7 +303,11 @@ def main():
 
                 score = play_human(env)
             else:
-                score = play_ai(env, agent)
+                ai_result = play_ai(env, agent)
+                if ai_result == "menu":
+                    env.close()
+                    break
+                score = ai_result
 
             result = show_game_over(env.surf, clock, score, mode)
             env.close()

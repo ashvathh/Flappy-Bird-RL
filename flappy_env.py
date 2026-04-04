@@ -249,4 +249,6 @@ class FlappyEnv:
 
     def close(self):
         if self.render_mode:
-            pygame.quit()
+            self.surf = None
+            self.clock = None
+            self.font = None
