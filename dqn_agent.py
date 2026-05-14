@@ -5,6 +5,7 @@ import numpy as np
 import random
 from collections import deque
 import pickle
+import matplotlib.pyplot as plt
 
 # Neural Network for DQN
 
